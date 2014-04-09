@@ -1,0 +1,26 @@
+{
+	"name": "mongo-document",
+	"version": "0.0.1",
+	"private": true,
+	"description": "",
+	"main": "index.js",
+	"keywords": [
+		"mongodb",
+		"mongo",
+		"persist",
+		"persistent"
+	],
+	"author": {
+		"name": "Thomas Jensen",
+		"email": "thomas@tjconcept.dk",
+		"url": "http://tjconcept.dk"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"extend": "~1.2.1",
+		"bluebird": "~1.1.0",
+		"poseidon-mongo": "~0.2.0",
+		"rename-key": "~1.0.0",
+		"debug": "~0.8.0"
+	}
+}
