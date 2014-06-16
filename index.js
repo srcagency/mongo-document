@@ -121,6 +121,11 @@ var mongoDocument = module.exports = {
 					.then(statics.fromMongoJSON);
 			},
 
+			// alias of findAll
+			find: function(){
+				return this.findAll.apply(this, arguments);
+			},
+
 			findAll: function( query, sort ){
 				query && prepareQuery(query);
 				sort && prepareQuery(sort);
