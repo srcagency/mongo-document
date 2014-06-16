@@ -8,7 +8,7 @@ var debug = require('debug')('mongo-document');
 
 var mongoDocument = module.exports = {
 
-	decorate: function( ctor, options ) {
+	decorate: function( ctor, options ){
 		debug('%s.decorate', ctor.name);
 
 		var statics;
@@ -20,7 +20,7 @@ var mongoDocument = module.exports = {
 
 		Object.defineProperty(ctor, 'collection', {
 
-			set: function( value ) {
+			set: function( value ){
 				debug('%s setting collection', this.name);
 
 				collection = Promise
@@ -34,7 +34,7 @@ var mongoDocument = module.exports = {
 					ensureIndexes.call(this, options.indexes);
 			},
 
-			get: function() {
+			get: function(){
 				return collection;
 			},
 
@@ -62,7 +62,7 @@ var mongoDocument = module.exports = {
 				return model;
 			},
 
-			pkFromJSON: function( json ) {
+			pkFromJSON: function( json ){
 				try {
 					return new mongodb.ObjectID.createFromHexString(json);
 				} catch (e) {
@@ -71,7 +71,7 @@ var mongoDocument = module.exports = {
 				return false;
 			},
 
-			remove: function( query, options, cb ) {
+			remove: function( query, options, cb ){
 				query && prepareQuery(query);
 
 				debug('%s.remove %j with options %j', this.name, query, options);
@@ -81,7 +81,7 @@ var mongoDocument = module.exports = {
 					.nodeify(typeof options === 'function' ? options : cb);
 			},
 
-			update: function( query, object, options, cb ) {
+			update: function( query, object, options, cb ){
 				query && prepareQuery(query);
 				options = options || {};
 
@@ -95,7 +95,7 @@ var mongoDocument = module.exports = {
 					.nodeify(typeof options === 'function' ? options : cb);
 			},
 
-			count: function( query, options, cb ) {
+			count: function( query, options, cb ){
 				query && prepareQuery(query);
 
 				return ctor.collection
@@ -110,7 +110,7 @@ var mongoDocument = module.exports = {
 				}
 				: findOneByPk,
 
-			findOne: function( query ) {
+			findOne: function( query ){
 				query && prepareQuery(query);
 
 				debug('%s.findOne %j', this.name, query);
@@ -121,7 +121,7 @@ var mongoDocument = module.exports = {
 					.then(statics.fromMongoJSON);
 			},
 
-			findAll: function( query, sort ) {
+			findAll: function( query, sort ){
 				query && prepareQuery(query);
 				sort && prepareQuery(sort);
 
@@ -139,11 +139,11 @@ var mongoDocument = module.exports = {
 					.map(statics.fromMongoJSON);
 			},
 
-			fupsert: function( query, object, sort, options ) {
+			fupsert: function( query, object, sort, options ){
 				return this.findAndModify(query, sort, object, extend(options || {}, { upsert: true }));
 			},
 
-			findAndModify: function( query, sort, object, options ) {
+			findAndModify: function( query, sort, object, options ){
 				query && prepareQuery(query);
 				sort && prepareQuery(sort);
 
@@ -167,11 +167,10 @@ var mongoDocument = module.exports = {
 		extend(ctor.prototype, {
 
 			remove: oRemove
-				? function( cb ) {
+				? function( cb ){
 					return Promise
 						.join(remove.call(this), oRemove.apply(this, arguments))
-						.nodeify(cb)
-					;
+						.nodeify(cb);
 				}
 				: remove,
 
@@ -227,7 +226,7 @@ var mongoDocument = module.exports = {
 
 // static functions (called with ctor as context)
 
-var ensureIndexes = function( indexes ) {
+function ensureIndexes( indexes ){
 	return indexes.map(function( index ){
 		var options = extend({}, index);
 		var keys = options.keys;
@@ -241,20 +240,20 @@ var ensureIndexes = function( indexes ) {
 	}, this);
 };
 
-var findOneByPk = function( pk ) {
+function findOneByPk( pk ){
 	debug('%s.findOneByPk pk: %s', this.name, pk);
 	return pk && this.findOne({ _id: pk }) || Promise.resolve();
 };
 
-// methods (called with instance as context)
+// methods (called with model instance as context)
 
-var remove = function( cb ) {
+function remove( cb ){
 	this._mongoDocument_persisted = false;
 	return this.constructor.remove({ pk: this.pk }, { single: true }, cb);
 };
 
 // helpers
 
-var prepareQuery = function( query ) {
+function prepareQuery( query ){
 	return renameKey(query, 'pk', '_id');
 };
