@@ -22,9 +22,9 @@
 	"license": "MIT",
 	"dependencies": {
 		"extend": "~1.2.1",
-		"bluebird": "~1.1.0",
+		"bluebird": "~2.1.2",
 		"poseidon-mongo": "~0.2.0",
-		"rename-key": "~1.0.0",
+		"rename-key": "~1.1.1",
 		"debug": "~1.0.2"
 	}
 }
