@@ -74,7 +74,7 @@ var mongoDocument = module.exports = {
 			remove: function( query, options, cb ){
 				query && prepareQuery(query);
 
-				debug('%s.remove %j with options %j', this.name, query, options);
+				debug('%s.remove %o with options %o', this.name, query, options);
 
 				return ctor.collection
 					.call('remove', query, options)
@@ -88,7 +88,7 @@ var mongoDocument = module.exports = {
 				if (typeof options.multi === 'undefined')
 					options.multi = true;
 
-				debug('%s.update %j with options %j', this.name, query, options);
+				debug('%s.update %o with options %o', this.name, query, options);
 
 				return ctor.collection
 					.call('update', query, object, options)
@@ -113,7 +113,7 @@ var mongoDocument = module.exports = {
 			findOne: function( query ){
 				query && prepareQuery(query);
 
-				debug('%s.findOne %j', this.name, query);
+				debug('%s.findOne %o', this.name, query);
 
 				return ctor.collection
 					.call('findOne', query)
@@ -125,7 +125,7 @@ var mongoDocument = module.exports = {
 				query && prepareQuery(query);
 				sort && prepareQuery(sort);
 
-				debug('%s.findAll %j with sort %j', this.name, query, sort);
+				debug('%s.findAll %o with sort %o', this.name, query, sort);
 
 				// @todo return cursor wrapper
 				var cursor = ctor.collection
@@ -152,7 +152,7 @@ var mongoDocument = module.exports = {
 
 				options = extend(options || {}, { new: true });
 
-				debug('%s.findAndModify %j with options %j and sort %j', this.name, query, options, sort);
+				debug('%s.findAndModify %o with options %o and sort %o', this.name, query, options, sort);
 
 				return ctor.collection
 					.call('findAndModify', query, sort, object, options)
@@ -235,7 +235,7 @@ function ensureIndexes( indexes ){
 		return this.collection
 			.call('ensureIndex', keys, options)
 			.then(function( r ){
-				debug('%s added index on keys %j with name %s', this.name, keys, r);
+				debug('%s added index %o with name %s', this.name, keys, r);
 			});
 	}, this);
 };

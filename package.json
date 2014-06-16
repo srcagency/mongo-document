@@ -21,6 +21,6 @@
 		"bluebird": "~1.1.0",
 		"poseidon-mongo": "~0.2.0",
 		"rename-key": "~1.0.0",
-		"debug": "~0.8.0"
+		"debug": "~1.0.2"
 	}
 }
