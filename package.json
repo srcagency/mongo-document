@@ -15,6 +15,10 @@
 		"email": "thomas@tjconcept.dk",
 		"url": "http://tjconcept.dk"
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://bitbucket.org/src-agency/njs-mongo-document.git"
+	},
 	"license": "MIT",
 	"dependencies": {
 		"extend": "~1.2.1",
