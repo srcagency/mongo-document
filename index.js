@@ -179,44 +179,7 @@ var mongoDocument = module.exports = {
 				}
 				: remove,
 
-			save: function( cb ) {
-				debug('%s.save running beforeSave', this.constructor.name);
-
-				if (this.beforeSave && this.beforeSave() === false)
-					return Promise.reject().nodeify(cb);
-
-				// @todo allow for converters to customize the saved document
-				var update = renameKey(extend({}, this.toJSON('db')), 'pk', '_id');
-				var model = this;
-
-				if (this._mongoDocument_persisted) {
-					debug('%s.save doing update', this.constructor.name);
-					delete update._id;
-
-					return ctor.collection
-						.call('update', { _id: this.pk }, { $set: update }, { upsert: true, safe: true })
-						.then(function(){
-							debug('updated');
-
-							model._mongoDocument_persisted = true;
-							model.afterSave && model.afterSave();
-							return model;
-						})
-						.nodeify(cb);
-				} else {
-					debug('%s.save doing insert', this.constructor.name);
-					return ctor.collection
-						.call('insert', update, { safe: true })
-						.then(function(){
-							debug('inserted');
-
-							model._mongoDocument_persisted = true;
-							model.afterSave && model.afterSave();
-							return model;
-						})
-						.nodeify(cb);
-				}
-			},
+			save: save,
 
 		});
 
@@ -257,8 +220,50 @@ function remove( cb ){
 	return this.constructor.remove({ pk: this.pk }, { single: true }, cb);
 };
 
+function save( cb ){
+	debug('%s.save', this.constructor.name);
+
+	return Promise
+		.bind(this)
+		.tap(this.beforeSave)
+		.tap(this._mongoDocument_persisted ? update : insert)
+		.tap(afterSave)
+		.return(this)
+		.nodeify(cb);
+}
+
+function insert(){
+	debug('%s.save inserting', this.constructor.name);
+
+	return this.constructor.collection
+		.call('insert', toMongoJSON(this), { safe: true });
+}
+
+function update(){
+	debug('%s.save updating', this.constructor.name);
+
+	var mongoJSON = toMongoJSON(this);
+	delete mongoJSON._id;
+
+	return this.constructor.collection
+		.call('update', { _id: this.pk }, { $set: mongoJSON }, { upsert: true, safe: true });
+}
+
+function afterSave(){
+	debug('%s.save saved', this.constructor.name);
+
+	this._mongoDocument_persisted = true;
+
+	if (this.afterSave)
+		return this.afterSave();
+}
+
 // helpers
 
 function prepareQuery( query ){
 	return renameKey(query, 'pk', '_id');
 };
+
+function toMongoJSON( model ){
+	return renameKey(extend({}, (model || this).toJSON('db')), 'pk', '_id');
+}
