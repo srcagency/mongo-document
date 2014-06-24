@@ -106,7 +106,12 @@ var mongoDocument = module.exports = {
 			findOneByPk: oFindOneByPk
 				? function( pk ){
 					debug('%s.findOneByPk delegating to original', this.name);
-					return oFindOneByPk.call(this, pk) || findOneByPk.call(this, pk);
+					return Promise
+						.resolve(oFindOneByPk.call(this, pk))
+						.bind(this)
+						.then(function( result ){
+							return result || findOneByPk.call(this, pk);
+						});
 				}
 				: findOneByPk,
 
