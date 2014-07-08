@@ -55,7 +55,7 @@ var mongoDocument = module.exports = {
 
 				renameKey(json, '_id', 'pk');
 
-				var model = this.fromJSON(json);
+				var model = this.fromJSON(json, true);
 
 				model._mongoDocument_persisted = true;
 
