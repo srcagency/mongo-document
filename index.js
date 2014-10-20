@@ -19,6 +19,9 @@ var mongoDocument = module.exports = {
 		ctor.addAttribute('pk');
 
 		Object.defineProperty(ctor, 'collection', {
+			writeable: false,
+			enumerable: false,
+			configurable: false,
 
 			set: function( value ){
 				debug('%s setting collection', ctor.name);
