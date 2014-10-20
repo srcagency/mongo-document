@@ -71,17 +71,15 @@ var mongoDocument = module.exports = {
 				return false;
 			},
 
-			remove: function( query, options, cb ){
+			remove: function( query, options ){
 				query && prepareQuery(query);
 
 				debug('%s.remove %o with options %o', this.name, query, options);
 
-				return ctor.collection
-					.call('remove', query, options)
-					.nodeify(typeof options === 'function' ? options : cb);
+				return ctor.collection.call('remove', query, options);
 			},
 
-			update: function( query, object, options, cb ){
+			update: function( query, object, options ){
 				query && prepareQuery(query);
 				options = options || {};
 
@@ -90,17 +88,13 @@ var mongoDocument = module.exports = {
 
 				debug('%s.update %o with options %o', this.name, query, options);
 
-				return ctor.collection
-					.call('update', query, object, options)
-					.nodeify(typeof options === 'function' ? options : cb);
+				return ctor.collection.call('update', query, object, options);
 			},
 
-			count: function( query, options, cb ){
+			count: function( query, options ){
 				query && prepareQuery(query);
 
-				return ctor.collection
-					.call('count', query, options)
-					.nodeify(typeof options === 'function' ? options : cb);
+				return ctor.collection.call('count', query, options);
 			},
 
 			findOneByPk: oFindOneByPk
@@ -138,8 +132,7 @@ var mongoDocument = module.exports = {
 				debug('%s.findAll %o with sort %o', this.name, query, sort);
 
 				// @todo return cursor wrapper
-				var cursor = ctor.collection
-					.call('find', query);
+				var cursor = ctor.collection.call('find', query);
 
 				sort && cursor.call('sort', sort);
 
@@ -177,10 +170,8 @@ var mongoDocument = module.exports = {
 			toMongoJSON: ctor.prototype.toMongoJSON || toMongoJSON,
 
 			remove: oRemove
-				? function( cb ){
-					return Promise
-						.join(remove.call(this), oRemove.apply(this, arguments))
-						.nodeify(cb);
+				? function(){
+					return Promise.join(remove.call(this), oRemove.apply(this, arguments));
 				}
 				: remove,
 
@@ -219,12 +210,12 @@ function findOneByPk( pk ){
 
 // methods (called with model instance as context)
 
-function remove( cb ){
+function remove(){
 	this._mongoDocument_persisted = false;
-	return this.constructor.remove({ pk: this.pk }, { single: true }, cb);
+	return this.constructor.remove({ pk: this.pk }, { single: true });
 };
 
-function save( cb ){
+function save(){
 	debug('%s.save', this.constructor.name);
 
 	return Promise
@@ -232,15 +223,13 @@ function save( cb ){
 		.tap(this.beforeSave)
 		.tap(this._mongoDocument_persisted ? update : insert)
 		.tap(afterSave)
-		.return(this)
-		.nodeify(cb);
+		.return(this);
 }
 
 function insert(){
 	debug('%s.save inserting', this.constructor.name);
 
-	return this.constructor.collection
-		.call('insert', this.toMongoJSON(), { safe: true });
+	return this.constructor.collection.call('insert', this.toMongoJSON(), { safe: true });
 }
 
 function update(){
@@ -249,8 +238,7 @@ function update(){
 	var mongoJSON = this.toMongoJSON();
 	delete mongoJSON._id;
 
-	return this.constructor.collection
-		.call('update', { _id: this.pk }, { $set: mongoJSON }, { upsert: true, safe: true });
+	return this.constructor.collection.call('update', { _id: this.pk }, { $set: mongoJSON }, { upsert: true, safe: true });
 }
 
 function afterSave(){
