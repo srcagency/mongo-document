@@ -24,7 +24,7 @@ var mongoDocument = module.exports = {
 				debug('%s setting collection', this.name);
 
 				collection = Promise
-					.cast(value)
+					.resolve(value)
 					.bind(this)
 					.tap(function( collection ){
 						debug('%s collection %s.%s ready', this.name, collection.instance.db.databaseName, collection.instance.collectionName);
