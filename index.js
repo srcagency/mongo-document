@@ -39,13 +39,11 @@ var mongoDocument = module.exports = {
 			get: function(){
 				return collection;
 			},
-
 		});
 
 		var oFindOneByPk = ctor.findOneByPk;
 
 		extend(ctor, statics = {
-
 			sort: {
 				ascending: 1,
 				descending: -1,
@@ -171,7 +169,6 @@ var mongoDocument = module.exports = {
 					.bind(this)
 					.spread(statics.fromMongoJSON);
 			},
-
 		});
 
 		var oRemove = ctor.prototype.remove;
@@ -201,23 +198,24 @@ var mongoDocument = module.exports = {
 // static functions (called with ctor as context)
 
 function ensureIndexes( ctor, indexes ){
-	return indexes.map(function( index ){
-		var options = extend({}, index);
-		var keys = options.keys;
-		delete options.keys;
+	return Promise
+		.map(indexes, function( index ){
+			var options = extend({}, index);
+			var keys = options.keys;
+			delete options.keys;
 
-		return ctor.collection
-			.call('ensureIndex', keys, options)
-			.then(function( r ){
-				debug('%s added index %o with name %s', ctor.name, keys, r);
-			});
-	});
-};
+			return ctor.collection
+				.call('ensureIndex', keys, options)
+				.then(function( r ){
+					debug('%s added index %o with name %s', ctor.name, keys, r);
+				});
+		});
+}
 
 function findOneByPk( pk ){
 	debug('%s.findOneByPk pk: %s', this.name, pk);
 	return pk && this.findOne({ _id: pk }) || Promise.resolve(null);
-};
+}
 
 // methods (called with model instance as context)
 
@@ -268,7 +266,7 @@ function afterSave(){
 
 function prepareQuery( query ){
 	return renameKey(query, 'pk', '_id');
-};
+}
 
 function toMongoJSON(){
 	return renameKey(this.toJSON('db'), 'pk', '_id');
