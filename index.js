@@ -21,17 +21,16 @@ var mongoDocument = module.exports = {
 		Object.defineProperty(ctor, 'collection', {
 
 			set: function( value ){
-				debug('%s setting collection', this.name);
+				debug('%s setting collection', ctor.name);
 
 				collection = Promise
 					.resolve(value)
-					.bind(this)
 					.tap(function( collection ){
-						debug('%s collection %s.%s ready', this.name, collection.instance.db.databaseName, collection.instance.collectionName);
+						debug('%s collection %s.%s ready', ctor.name, collection.instance.db.databaseName, collection.instance.collectionName);
 					});
 
 				if (options.indexes)
-					ensureIndexes.call(this, options.indexes);
+					ensureIndexes(ctor, options.indexes);
 			},
 
 			get: function(){
@@ -185,9 +184,7 @@ var mongoDocument = module.exports = {
 				: remove,
 
 			save: save,
-
 		});
-
 	},
 
 	init: function(){
@@ -199,18 +196,18 @@ var mongoDocument = module.exports = {
 
 // static functions (called with ctor as context)
 
-function ensureIndexes( indexes ){
+function ensureIndexes( ctor, indexes ){
 	return indexes.map(function( index ){
 		var options = extend({}, index);
 		var keys = options.keys;
 		delete options.keys;
 
-		return this.collection
+		return ctor.collection
 			.call('ensureIndex', keys, options)
 			.then(function( r ){
-				debug('%s added index %o with name %s', this.name, keys, r);
+				debug('%s added index %o with name %s', ctor.name, keys, r);
 			});
-	}, this);
+	});
 };
 
 function findOneByPk( pk ){
