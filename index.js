@@ -174,6 +174,7 @@ var mongoDocument = module.exports = {
 		var oRemove = ctor.prototype.remove;
 
 		extend(ctor.prototype, {
+			toMongoJSON: ctor.prototype.toMongoJSON || toMongoJSON,
 
 			remove: oRemove
 				? function( cb ){
@@ -238,13 +239,13 @@ function insert(){
 	debug('%s.save inserting', this.constructor.name);
 
 	return this.constructor.collection
-		.call('insert', toMongoJSON(this), { safe: true });
+		.call('insert', this.toMongoJSON(), { safe: true });
 }
 
 function update(){
 	debug('%s.save updating', this.constructor.name);
 
-	var mongoJSON = toMongoJSON(this);
+	var mongoJSON = this.toMongoJSON();
 	delete mongoJSON._id;
 
 	return this.constructor.collection
@@ -266,6 +267,6 @@ function prepareQuery( query ){
 	return renameKey(query, 'pk', '_id');
 };
 
-function toMongoJSON( model ){
-	return renameKey(extend({}, (model || this).toJSON('db')), 'pk', '_id');
+function toMongoJSON(){
+	return renameKey(this.toJSON('db'), 'pk', '_id');
 }
