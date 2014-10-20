@@ -2,7 +2,7 @@
 
 var extend = require('extend');
 var Promise = require('bluebird');
-var mongodb = require('poseidon-mongo');
+var mongodb = require('mongodb');
 var renameKey = require('rename-key');
 var debug = require('debug')('mongo-document');
 
