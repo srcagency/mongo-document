@@ -216,7 +216,7 @@ function ensureIndexes( ctor, indexes ){
 
 function findOneByPk( pk ){
 	debug('%s.findOneByPk pk: %s', this.name, pk);
-	return pk && this.findOne({ _id: pk }) || Promise.resolve();
+	return pk && this.findOne({ _id: pk }) || Promise.resolve(null);
 };
 
 // methods (called with model instance as context)
