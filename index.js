@@ -193,7 +193,8 @@ function ensureIndexes( ctor, indexes ){
 
 function findOneByPk( pk ){
 	debug('%s.findOneByPk pk: %s', this.name, pk);
-	return pk && this.findOne({ _id: pk }) || Promise.resolve(null);
+
+	return this.findOne({ pk: pk });
 }
 
 // methods (called with model instance as context)
