@@ -41,8 +41,6 @@ var mongoDocument = module.exports = {
 			},
 		});
 
-		var oFindOneByPk = ctor.findOneByPk;
-
 		extend(ctor, statics = {
 			sort: {
 				ascending: 1,
@@ -97,17 +95,7 @@ var mongoDocument = module.exports = {
 				return ctor.collection.call('count', query, options);
 			},
 
-			findOneByPk: oFindOneByPk
-				? function( pk ){
-					debug('%s.findOneByPk delegating to original', this.name);
-					return Promise
-						.resolve(oFindOneByPk.call(this, pk))
-						.bind(this)
-						.then(function( result ){
-							return result || findOneByPk.call(this, pk);
-						});
-				}
-				: findOneByPk,
+			findOneByPk: findOneByPk,
 
 			findOne: function( query ){
 				query && prepareQuery(query);
