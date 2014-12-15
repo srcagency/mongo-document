@@ -220,7 +220,6 @@ function save(){
 
 	return Promise
 		.bind(this)
-		.tap(this.beforeSave)
 		.tap(this._mongoDocument_persisted ? update : insert)
 		.tap(afterSave)
 		.return(this);
@@ -245,9 +244,6 @@ function afterSave(){
 	debug('%s.save saved', this.constructor.name);
 
 	this._mongoDocument_persisted = true;
-
-	if (this.afterSave)
-		return this.afterSave();
 }
 
 // helpers
