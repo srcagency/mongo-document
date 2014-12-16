@@ -152,16 +152,10 @@ var mongoDocument = module.exports = {
 			},
 		});
 
-		var oRemove = ctor.prototype.remove;
-
 		extend(ctor.prototype, {
 			toMongoJSON: ctor.prototype.toMongoJSON || toMongoJSON,
 
-			remove: oRemove
-				? function(){
-					return Promise.join(remove.call(this), oRemove.apply(this, arguments));
-				}
-				: remove,
+			remove: remove,
 
 			save: save,
 		});
