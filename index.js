@@ -65,8 +65,7 @@ var mongoDocument = module.exports = {
 			pkFromJSON: function( json ){
 				try {
 					return new mongodb.ObjectID.createFromHexString(json);
-				} catch (e) {
-				}
+				} catch (e) { }
 
 				return false;
 			},
