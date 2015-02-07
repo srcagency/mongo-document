@@ -16,7 +16,9 @@ var mongoDocument = module.exports = {
 
 		options = options || {};
 
-		ctor.addAttribute('pk');
+		// support https://github.com/srcagency/active-document
+		if (ctor.addAttribute)
+			ctor.addAttribute('pk');
 
 		Object.defineProperty(ctor, 'collection', {
 			writeable: false,
