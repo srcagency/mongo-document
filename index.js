@@ -165,9 +165,8 @@ var mongoDocument = module.exports = {
 		});
 	},
 
-	init: function(){
-		if (!this.pk)
-			this.pk = mongodb.ObjectID();
+	init: function( m ){
+		init(m || this);
 	},
 
 };
@@ -228,6 +227,11 @@ function afterSave(){
 }
 
 // helpers
+
+function init( model ){
+	if (!model.pk)
+		model.pk = mongodb.ObjectID();
+}
 
 function prepareQuery( query ){
 	return renameKey(query, 'pk', '_id');
