@@ -95,7 +95,11 @@ var mongoDocument = module.exports = {
 				return ctor.collection.call('count', query, options);
 			},
 
-			findOneByPk: findOneByPk,
+			findOneByPk: function( pk ){
+				debug('%s.findOneByPk pk: %s', this.name, pk);
+
+				return this.findOne({ pk: pk });
+			},
 
 			findOne: function( query ){
 				query && prepareQuery(query);
@@ -183,12 +187,6 @@ function ensureIndexes( ctor, indexes ){
 					debug('%s added index %o with name %s', ctor.name, keys, r);
 				});
 		});
-}
-
-function findOneByPk( pk ){
-	debug('%s.findOneByPk pk: %s', this.name, pk);
-
-	return this.findOne({ pk: pk });
 }
 
 // methods (called with model instance as context)
