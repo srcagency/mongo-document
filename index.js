@@ -11,7 +11,6 @@ var mongoDocument = module.exports = {
 	decorate: function( ctor, options ){
 		debug('%s.decorate', ctor.name);
 
-		var statics;
 		var collection;
 
 		options = options || {};
@@ -43,7 +42,7 @@ var mongoDocument = module.exports = {
 			},
 		});
 
-		extend(ctor, statics = {
+		extend(ctor, {
 			sort: {
 				ascending: 1,
 				descending: -1,
@@ -75,7 +74,7 @@ var mongoDocument = module.exports = {
 
 				debug('%s.remove %o with options %o', this.name, query, options);
 
-				return ctor.collection.call('remove', query, options);
+				return this.collection.call('remove', query, options);
 			},
 
 			update: function( query, object, options ){
@@ -87,13 +86,13 @@ var mongoDocument = module.exports = {
 
 				debug('%s.update %o with options %o', this.name, query, options);
 
-				return ctor.collection.call('update', query, object, options);
+				return this.collection.call('update', query, object, options);
 			},
 
 			count: function( query, options ){
 				query && prepareQuery(query);
 
-				return ctor.collection.call('count', query, options);
+				return this.collection.call('count', query, options);
 			},
 
 			findOneByPk: function( pk ){
@@ -107,10 +106,10 @@ var mongoDocument = module.exports = {
 
 				debug('%s.findOne %o', this.name, query);
 
-				return ctor.collection
+				return this.collection
 					.call('findOne', query)
 					.bind(this)
-					.then(statics.fromMongoJSON);
+					.then(this.fromMongoJSON);
 			},
 
 			// alias of findAll
@@ -125,14 +124,14 @@ var mongoDocument = module.exports = {
 				debug('%s.findAll %o with sort %o', this.name, query, sort);
 
 				// @todo return cursor wrapper
-				var cursor = ctor.collection.call('find', query);
+				var cursor = this.collection.call('find', query);
 
 				sort && cursor.call('sort', sort);
 
 				return cursor
 					.call('toArray')
 					.bind(this)
-					.map(statics.fromMongoJSON);
+					.map(this.fromMongoJSON);
 			},
 
 			fupsert: function( query, object, sort, options ){
@@ -150,10 +149,10 @@ var mongoDocument = module.exports = {
 
 				debug('%s.findAndModify %o with options %o and sort %o', this.name, query, options, sort);
 
-				return ctor.collection
+				return this.collection
 					.call('findAndModify', query, sort, object, options)
 					.bind(this)
-					.spread(statics.fromMongoJSON);
+					.spread(this.fromMongoJSON);
 			},
 		});
 
