@@ -1,6 +1,6 @@
 'use strict';
 
-var extend = require('extend');
+var assign = require('object-assign');
 var Promise = require('bluebird');
 var mongodb = require('mongodb');
 var renameKey = require('rename-key');
@@ -42,7 +42,7 @@ var mongoDocument = module.exports = {
 			},
 		});
 
-		extend(ctor, {
+		assign(ctor, {
 			sort: {
 				ascending: 1,
 				descending: -1,
@@ -135,7 +135,7 @@ var mongoDocument = module.exports = {
 			},
 
 			fupsert: function( query, object, sort, options ){
-				return this.findAndModify(query, sort, object, extend(options || {}, { upsert: true }));
+				return this.findAndModify(query, sort, object, assign(options || {}, { upsert: true }));
 			},
 
 			findAndModify: function( query, sort, object, options ){
@@ -145,7 +145,7 @@ var mongoDocument = module.exports = {
 				if (options && options.new !== undefined)
 					throw new Error('Setting the new attribute is not supported (it must be true)');
 
-				options = extend(options || {}, { new: true });
+				options = assign(options || {}, { new: true });
 
 				debug('%s.findAndModify %o with options %o and sort %o', this.name, query, options, sort);
 
@@ -156,7 +156,7 @@ var mongoDocument = module.exports = {
 			},
 		});
 
-		extend(ctor.prototype, {
+		assign(ctor.prototype, {
 			toMongoJSON: ctor.prototype.toMongoJSON || toMongoJSON,
 
 			remove: remove,
@@ -176,7 +176,7 @@ var mongoDocument = module.exports = {
 function ensureIndexes( ctor, indexes ){
 	return Promise
 		.map(indexes, function( index ){
-			var options = extend({}, index);
+			var options = assign({}, index);
 			var keys = options.keys;
 			delete options.keys;
 
