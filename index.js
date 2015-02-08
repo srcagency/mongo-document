@@ -6,8 +6,7 @@ var mongodb = require('mongodb');
 var renameKey = require('rename-key');
 var debug = require('debug')('mongo-document');
 
-var mongoDocument = module.exports = {
-
+module.exports = {
 	decorate: function( ctor, options ){
 		debug('%s.decorate', ctor.name);
 
