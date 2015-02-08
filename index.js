@@ -157,9 +157,7 @@ module.exports = {
 
 		assign(ctor.prototype, {
 			toMongoJSON: ctor.prototype.toMongoJSON || toMongoJSON,
-
 			remove: remove,
-
 			save: save,
 		});
 	},
@@ -167,7 +165,6 @@ module.exports = {
 	init: function( m ){
 		init(m || this);
 	},
-
 };
 
 // static functions (called with ctor as context)
