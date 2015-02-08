@@ -70,7 +70,7 @@ var mongoDocument = module.exports = {
 			},
 
 			remove: function( query, options ){
-				query && prepareQuery(query);
+				prepareQuery(query);
 
 				debug('%s.remove %o with options %o', this.name, query, options);
 
@@ -78,7 +78,7 @@ var mongoDocument = module.exports = {
 			},
 
 			update: function( query, object, options ){
-				query && prepareQuery(query);
+				prepareQuery(query);
 				options = options || {};
 
 				if (typeof options.multi === 'undefined')
@@ -90,7 +90,7 @@ var mongoDocument = module.exports = {
 			},
 
 			count: function( query, options ){
-				query && prepareQuery(query);
+				prepareQuery(query);
 
 				return this.collection.call('count', query, options);
 			},
@@ -102,7 +102,7 @@ var mongoDocument = module.exports = {
 			},
 
 			findOne: function( query ){
-				query && prepareQuery(query);
+				prepareQuery(query);
 
 				debug('%s.findOne %o', this.name, query);
 
@@ -118,8 +118,8 @@ var mongoDocument = module.exports = {
 			},
 
 			findAll: function( query, sort ){
-				query && prepareQuery(query);
-				sort && prepareQuery(sort);
+				prepareQuery(query);
+				prepareQuery(sort);
 
 				debug('%s.findAll %o with sort %o', this.name, query, sort);
 
@@ -139,8 +139,8 @@ var mongoDocument = module.exports = {
 			},
 
 			findAndModify: function( query, sort, object, options ){
-				query && prepareQuery(query);
-				sort && prepareQuery(sort);
+				prepareQuery(query);
+				prepareQuery(sort);
 
 				if (options && options.new !== undefined)
 					throw new Error('Setting the new attribute is not supported (it must be true)');
@@ -234,7 +234,7 @@ function init( model ){
 }
 
 function prepareQuery( query ){
-	return renameKey(query, 'pk', '_id');
+	return query && renameKey(query, 'pk', '_id');
 }
 
 function toMongoJSON(){
