@@ -10,11 +10,7 @@
 		"persist",
 		"persistent"
 	],
-	"author": {
-		"name": "Thomas Jensen",
-		"email": "thomas@src.agency",
-		"url": "http://src.agency"
-	},
+	"author": "Thomas Jensen <thomas@src.agency> (http://src.agency)",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/srcagency/mongo-document.git"
