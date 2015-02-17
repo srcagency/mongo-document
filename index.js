@@ -77,8 +77,7 @@ module.exports = {
 			update: function( query, object, options ){
 				options = options || {};
 
-				if (typeof options.multi === 'undefined')
-					options.multi = true;
+				options.multi = options.multi !== false;
 
 				debug('%s.update %o with options %o', this.name, query, options);
 
@@ -129,11 +128,12 @@ module.exports = {
 			},
 
 			fupsert: function( query, object, sort, options ){
-				return this.findAndModify(query, sort, object, assign(options || {}, { upsert: true }));
+				return this.findAndModify(query, sort, object, assign({
+					upsert: true
+				}, options));
 			},
 
 			findAndModify: function( query, sort, object, options ){
-
 				if (options && options.new !== undefined)
 					throw new Error('Setting the new attribute is not supported (it must be true)');
 
