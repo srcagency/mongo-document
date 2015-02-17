@@ -1,6 +1,7 @@
 'use strict';
 
 var assign = require('object-assign');
+var withoutKeys = require('without-keys');
 var Promise = require('bluebird');
 var mongodb = require('mongodb');
 var renameKey = require('rename-key');
@@ -164,9 +165,8 @@ module.exports = {
 function ensureIndexes( ctor, indexes ){
 	return Promise
 		.map(indexes, function( index ){
-			var options = assign({}, index);
-			var keys = options.keys;
-			delete options.keys;
+			var keys = index.keys;
+			var options = withoutKeys(index, [ 'keys' ]);
 
 			return ctor.collection
 				.call('ensureIndex', keys, options)
