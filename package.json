@@ -4,6 +4,9 @@
 	"private": true,
 	"description": "",
 	"main": "index.js",
+	"scripts": {
+		"test": "node test"
+	},
 	"keywords": [
 		"mongodb",
 		"mongo",
@@ -23,5 +26,8 @@
 		"rename-key": "^1.1.1",
 		"debug": "^2.1.1",
 		"without-keys": "^0.0.3"
+	},
+	"devDependencies": {
+		"tape": "^3.5.0"
 	}
 }
