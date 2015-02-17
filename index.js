@@ -147,6 +147,11 @@ module.exports = {
 					.bind(this)
 					.spread(this.fromMongoJSON);
 			},
+
+			// delegators
+			save: function( m ){
+				return m.save();
+			},
 		});
 
 		assign(ctor.prototype, {
