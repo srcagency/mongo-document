@@ -149,7 +149,6 @@ module.exports = {
 		});
 
 		assign(ctor.prototype, {
-			toMongoJSON: ctor.prototype.toMongoJSON || toMongoJSON,
 			remove: remove,
 			save: save,
 		});
@@ -198,13 +197,13 @@ function save(){
 function insert(){
 	debug('%s.save inserting', this.constructor.name);
 
-	return this.constructor.collection.call('insert', this.toMongoJSON(), { safe: true });
+	return this.constructor.collection.call('insert', toMongoJSON(this), { safe: true });
 }
 
 function update(){
 	debug('%s.save updating', this.constructor.name);
 
-	var mongoJSON = this.toMongoJSON();
+	var mongoJSON = toMongoJSON(this);
 	delete mongoJSON._id;
 
 	return this.constructor.collection.call('update', { _id: this.pk }, { $set: mongoJSON }, { upsert: true, safe: true });
@@ -227,6 +226,6 @@ function prepareQuery( query ){
 	return query && renameKey(query, 'pk', '_id');
 }
 
-function toMongoJSON(){
-	return renameKey(this.toJSON('db'), 'pk', '_id');
+function toMongoJSON( model ){
+	return renameKey(model.toJSON('db'), 'pk', '_id');
 }
