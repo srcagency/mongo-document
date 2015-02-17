@@ -171,6 +171,15 @@ var mongoDocument = module.exports = {
 					.bind(this)
 					.spread(statics.fromMongoJSON);
 			},
+
+			equal: function(){
+				for (var i = arguments.length - 1;i > 0;i--) {
+					if (!equal(arguments[i], arguments[i - 1]))
+						return false;
+				}
+
+				return true;
+			},
 		});
 
 		var oRemove = ctor.prototype.remove;
@@ -185,6 +194,10 @@ var mongoDocument = module.exports = {
 						.nodeify(cb);
 				}
 				: remove,
+
+			equals: function( m ){
+				return equal(this, m);
+			},
 
 			save: save,
 		});
@@ -272,4 +285,17 @@ function prepareQuery( query ){
 
 function toMongoJSON(){
 	return renameKey(this.toJSON('db'), 'pk', '_id');
+}
+
+function equal( a, b ){
+	if (!b || !(a instanceof b.constructor))
+		return false;
+
+	if (a === b)
+		return true;
+
+	if (b.pk.equals)
+		return b.pk.equals(a.pk);
+
+	return b.pk === a.pk;
 }
