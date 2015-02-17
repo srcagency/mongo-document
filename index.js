@@ -33,7 +33,7 @@ module.exports = {
 					});
 
 				if (options.indexes)
-					ensureIndexes(ctor, options.indexes);
+					ctor.indexesReady = ensureIndexes(ctor, options.indexes);
 			},
 
 			get: function(){
@@ -171,9 +171,10 @@ function ensureIndexes( ctor, indexes ){
 
 			return ctor.collection
 				.call('ensureIndex', keys, options)
-				.then(function( r ){
+				.tap(function( r ){
 					debug('%s added index %o with name %s', ctor.name, keys, r);
-				});
+				})
+				.return(index);
 		});
 }
 
