@@ -69,15 +69,12 @@ module.exports = {
 			},
 
 			remove: function( query, options ){
-				prepareQuery(query);
-
 				debug('%s.remove %o with options %o', this.name, query, options);
 
-				return this.collection.call('remove', query, options);
+				return this.collection.call('remove', prepareQuery(query), options);
 			},
 
 			update: function( query, object, options ){
-				prepareQuery(query);
 				options = options || {};
 
 				if (typeof options.multi === 'undefined')
@@ -85,13 +82,11 @@ module.exports = {
 
 				debug('%s.update %o with options %o', this.name, query, options);
 
-				return this.collection.call('update', query, object, options);
+				return this.collection.call('update', prepareQuery(query), object, options);
 			},
 
 			count: function( query, options ){
-				prepareQuery(query);
-
-				return this.collection.call('count', query, options);
+				return this.collection.call('count', prepareQuery(query), options);
 			},
 
 			findOneByPk: function( pk ){
@@ -104,12 +99,11 @@ module.exports = {
 			},
 
 			findOne: function( query ){
-				prepareQuery(query);
 
 				debug('%s.findOne %o', this.name, query);
 
 				return this.collection
-					.call('findOne', query)
+					.call('findOne', prepareQuery(query))
 					.bind(this)
 					.then(this.fromMongoJSON);
 			},
@@ -120,15 +114,13 @@ module.exports = {
 			},
 
 			findAll: function( query, sort ){
-				prepareQuery(query);
-				prepareQuery(sort);
 
 				debug('%s.findAll %o with sort %o', this.name, query, sort);
 
 				// @todo return cursor wrapper
-				var cursor = this.collection.call('find', query);
+				var cursor = this.collection.call('find', prepareQuery(query));
 
-				sort && cursor.call('sort', sort);
+				sort && cursor.call('sort', prepareQuery(sort));
 
 				return cursor
 					.call('toArray')
@@ -141,8 +133,6 @@ module.exports = {
 			},
 
 			findAndModify: function( query, sort, object, options ){
-				prepareQuery(query);
-				prepareQuery(sort);
 
 				if (options && options.new !== undefined)
 					throw new Error('Setting the new attribute is not supported (it must be true)');
@@ -152,7 +142,7 @@ module.exports = {
 				debug('%s.findAndModify %o with options %o and sort %o', this.name, query, options, sort);
 
 				return this.collection
-					.call('findAndModify', query, sort, object, options)
+					.call('findAndModify', prepareQuery(query), prepareQuery(sort), object, options)
 					.bind(this)
 					.spread(this.fromMongoJSON);
 			},
