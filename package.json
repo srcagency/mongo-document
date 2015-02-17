@@ -4,6 +4,9 @@
 	"private": true,
 	"description": "",
 	"main": "index.js",
+	"scripts": {
+		"test": "node test"
+	},
 	"keywords": [
 		"mongodb",
 		"mongo",
@@ -27,5 +30,9 @@
 		"coffee-script": "~1.7.1",
 		"rename-key": "~1.1.1",
 		"debug": "~1.0.2"
+	},
+	"devDependencies": {
+		"tape": "^3.5.0",
+		"poseidon-mongo": "^0.2.0"
 	}
 }
