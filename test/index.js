@@ -8,7 +8,7 @@ var mongoDocument = require('../');
 
 Promise.longStackTraces();
 
-var db = mongodb.connectAsync('mongodb://localhost/test');
+var db = mongodb.connectAsync('mongodb://localhost/mongo-document-tests');
 
 var counter = 0;
 
@@ -581,6 +581,10 @@ test('methods', function( t ){
 });
 
 test('teardown', function( t ){
-	db.call('close');
+	db
+		.call('dropDatabase')
+		.return(db)
+		.call('close');
+
 	t.end();
 });
