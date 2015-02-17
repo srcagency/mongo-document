@@ -80,6 +80,8 @@ var mongoDocument = module.exports = {
 
 				return ctor.collection
 					.call('remove', query, options)
+					.get(1)
+					.get('n')
 					.nodeify(typeof options === 'function' ? options : cb);
 			},
 
