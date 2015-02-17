@@ -180,6 +180,11 @@ var mongoDocument = module.exports = {
 
 				return true;
 			},
+
+			// delegators
+			save: function( m ){
+				return m.save();
+			},
 		});
 
 		var oRemove = ctor.prototype.remove;
