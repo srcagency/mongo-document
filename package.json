@@ -23,8 +23,7 @@
 	"dependencies": {
 		"object-assign": "^2.0.0",
 		"bluebird": "~2.1.2",
-		"mongodb": "^2.0.3",
-		"coffee-script": "~1.7.1",
+		"mongodb": "^2.0.16",
 		"rename-key": "~1.1.1",
 		"debug": "~1.0.2",
 		"without-keys": "^0.0.3"

@@ -29,8 +29,10 @@ module.exports = {
 
 				collection = Promise
 					.resolve(value)
-					.tap(function( collection ){
-						debug('%s collection %s.%s ready', ctor.name, collection.instance.db.databaseName, collection.instance.collectionName);
+					.then(function( collection ){
+						debug('%s collection %s ready', ctor.name, collection.collectionName);
+
+						return Promise.promisifyAll(collection);
 					});
 
 				if (options.indexes)
@@ -62,31 +64,28 @@ module.exports = {
 			},
 
 			pkFromJSON: function( json ){
-				try {
-					return new mongodb.ObjectID.createFromHexString(json);
-				} catch (e) { }
+				if (!mongodb.ObjectID.isValid(json))
+					return false;
 
-				return false;
+				return new mongodb.ObjectID.createFromHexString(json);
 			},
 
 			remove: function( query, options ){
 				debug('%s.remove %o with options %o', this.name, query, options);
 
-				return this.collection.call('remove', prepareQuery(query), options);
+				return this.collection.call('deleteManyAsync', prepareQuery(query), options)
+					.get('result')
+					.get('n');
 			},
 
 			update: function( query, object, options ){
-				options = options || {};
-
-				options.multi = options.multi !== false;
-
 				debug('%s.update %o with options %o', this.name, query, options);
 
-				return this.collection.call('update', prepareQuery(query), object, options);
+				return this.collection.call('updateManyAsync', prepareQuery(query), object, options);
 			},
 
 			count: function( query, options ){
-				return this.collection.call('count', prepareQuery(query), options);
+				return this.collection.call('countAsync', prepareQuery(query), options);
 			},
 
 			findOneByPk: function( pk ){
@@ -98,54 +97,43 @@ module.exports = {
 				return this.findOne({ pk: pk });
 			},
 
-			findOne: function( query ){
+			findByPk: findAllByPk,
+			findAllByPk: findAllByPk,
 
+			findOne: function( query ){
 				debug('%s.findOne %o', this.name, query);
 
-				return this.collection
-					.call('findOne', prepareQuery(query))
+				return this.collection.call('findOneAsync', prepareQuery(query))
 					.bind(this)
 					.then(this.fromMongoJSON);
 			},
 
-			// alias of findAll
-			find: function(){
-				return this.findAll.apply(this, arguments);
-			},
-
-			findAll: function( query, sort ){
-
-				debug('%s.findAll %o with sort %o', this.name, query, sort);
-
-				// @todo return cursor wrapper
-				var cursor = this.collection.call('find', prepareQuery(query));
-
-				sort && cursor.call('sort', prepareQuery(sort));
-
-				return cursor
-					.call('toArray')
-					.bind(this)
-					.map(this.fromMongoJSON);
-			},
+			find: findAll,
+			findAll: findAll,
 
 			fupsert: function( query, object, sort, options ){
-				return this.findAndModify(query, sort, object, assign({
-					upsert: true
+				return this.findAndModify(query, object, sort, assign({
+					upsert: true,
 				}, options));
 			},
 
-			findAndModify: function( query, sort, object, options ){
-				if (options && options.new !== undefined)
-					throw new Error('Setting the new attribute is not supported (it must be true)');
-
-				options = assign(options || {}, { new: true });
-
+			findAndModify: function( query, object, sort, options ){
 				debug('%s.findAndModify %o with options %o and sort %o', this.name, query, options, sort);
 
-				return this.collection
-					.call('findAndModify', prepareQuery(query), prepareQuery(sort), object, options)
+				options = assign({
+					sort: prepareQuery(sort),
+					returnOriginal: false,
+				}, options || {});
+
+				return this.collection.call(
+					'findOneAndUpdateAsync',
+					prepareQuery(query),
+					object,
+					options
+				)
 					.bind(this)
-					.spread(this.fromMongoJSON);
+					.get('value')
+					.then(this.fromMongoJSON);
 			},
 
 			// delegators
@@ -187,8 +175,7 @@ function ensureIndexes( ctor, indexes ){
 			var keys = index.keys;
 			var options = withoutKeys(index, [ 'keys' ]);
 
-			return ctor.collection
-				.call('ensureIndex', keys, options)
+			return ctor.collection.call('ensureIndexAsync', keys, options)
 				.tap(function( r ){
 					debug('%s added index %o with name %s', ctor.name, keys, r);
 				})
@@ -196,42 +183,58 @@ function ensureIndexes( ctor, indexes ){
 		});
 }
 
+function findAllByPk( pks, sort ){
+	if (!Array.isArray(pks))
+		throw new Error('expected array of primary keys');
+
+	return this.findAll({ pk: { $in: pks } }, sort);
+}
+
+function findAll( query, sort ){
+	debug('%s.findAll %o with sort %o', this.name, query, sort);
+
+	var cursor = this.collection.call('findAsync', prepareQuery(query));
+
+	if (sort)
+		cursor.call('sort', prepareQuery(sort));
+
+	return cursor.call('toArrayAsync')
+		.bind(this)
+		.map(this.fromMongoJSON);
+}
+
 // methods (called with model instance as context)
 
+var updateOptions = { upsert: true };
+
 function remove(){
+	debug('%s.remove', this.constructor.name);
+
 	this._mongoDocument_persisted = false;
-	return this.constructor.remove({ pk: this.pk }, { single: true });
+
+	return this.constructor.collection.call('deleteOneAsync', { _id: this.pk })
+		.return(this);
 };
 
 function save(){
-	debug('%s.save', this.constructor.name);
+	var action = this._mongoDocument_persisted ? update : insert;
 
-	return Promise
-		.bind(this)
-		.tap(this._mongoDocument_persisted ? update : insert)
-		.tap(afterSave)
+	this._mongoDocument_persisted = true;
+
+	return action(this.constructor, this, toMongoJSON(this))
 		.return(this);
 }
 
-function insert(){
-	debug('%s.save inserting', this.constructor.name);
+function insert( ctor, model, json ){
+	debug('%s.save inserting', ctor.name);
 
-	return this.constructor.collection.call('insert', toMongoJSON(this), { safe: true });
+	return ctor.collection.call('insertOneAsync', json);
 }
 
-function update(){
-	debug('%s.save updating', this.constructor.name);
+function update( ctor, model, json ){
+	debug('%s.save updating', ctor.name);
 
-	var mongoJSON = toMongoJSON(this);
-	delete mongoJSON._id;
-
-	return this.constructor.collection.call('update', { _id: this.pk }, { $set: mongoJSON }, { upsert: true, safe: true });
-}
-
-function afterSave(){
-	debug('%s.save saved', this.constructor.name);
-
-	this._mongoDocument_persisted = true;
+	return ctor.collection.call('updateOneAsync', { _id: model.pk }, { $set: json }, updateOptions);
 }
 
 // helpers
