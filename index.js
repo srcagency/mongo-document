@@ -233,6 +233,7 @@ function insert( ctor, model, json ){
 
 function update( ctor, model, json ){
 	debug('%s.save updating', ctor.name);
+	delete json._id;
 
 	return ctor.collection.call('updateOneAsync', { _id: model.pk }, { $set: json }, updateOptions);
 }
