@@ -8,6 +8,8 @@ var renameKey = require('rename-key');
 var debug = require('debug')('mongo-document');
 
 var bsonRegex = /^[0-9a-fA-F]{24}$/;
+var Cursor = require('./Cursor');
+Cursor.prepareQuery = prepareQuery;
 
 module.exports = {
 	decorate: function( ctor, options ){
@@ -185,24 +187,17 @@ function ensureIndexes( ctor, indexes ){
 		});
 }
 
-function findAllByPk( pks, sort ){
+function findAllByPk( pks ){
 	if (!Array.isArray(pks))
 		throw new Error('expected array of primary keys');
 
-	return this.findAll({ pk: { $in: pks } }, sort);
+	return this.findAll({ pk: { $in: pks } });
 }
 
-function findAll( query, sort ){
-	debug('%s.findAll %o with sort %o', this.name, query, sort);
+function findAll( query ){
+	debug('%s.findAll %o', this.name, query);
 
-	var cursor = this.collection.call('findAsync', prepareQuery(query));
-
-	if (sort)
-		cursor.call('sort', prepareQuery(sort));
-
-	return cursor.call('toArrayAsync')
-		.bind(this)
-		.map(this.fromMongoJSON);
+	return new Cursor(this, this.collection.call('findAsync', prepareQuery(query)));
 }
 
 // methods (called with model instance as context)

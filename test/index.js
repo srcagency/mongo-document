@@ -218,6 +218,18 @@ test('statics', function( t ){
 			});
 	});
 
+	t.test('findAll (cursor)', function( t ){
+		t.plan(4);
+
+		var cursor = getModel()
+			.findAll();
+
+		t.ok(cursor.sort, 'sort');
+		t.ok(cursor.limit, 'limit');
+		t.ok(cursor.skip, 'skip');
+		t.ok(cursor.toArray, 'toArray');
+	});
+
 	t.test('findAll (and alias find)', function( t ){
 		t.plan(9);
 
@@ -241,7 +253,7 @@ test('statics', function( t ){
 
 		saved
 			.then(function(){
-				return Person.findAll({ age: 33 });
+				return Person.findAll({ age: 33 }).toArray();
 			})
 			.then(function( found ){
 				t.equal(found.length, 2, 'found two models');
@@ -252,7 +264,7 @@ test('statics', function( t ){
 
 		saved
 			.then(function(){
-				return Person.findAll({ age: 33 }, { name: Person.sort.ascending });
+				return Person.findAll({ age: 33 }).sort({ name: Person.sort.ascending }).toArray();
 			})
 			.then(function( found ){
 				t.equal(found[0].name, 'Adam', 'Adam first');
@@ -261,7 +273,7 @@ test('statics', function( t ){
 
 		saved
 			.then(function(){
-				return Person.findAll({ age: 33 }, { name: Person.sort.descending });
+				return Person.findAll({ age: 33 }).sort({ name: Person.sort.descending }).toArray();
 			})
 			.then(function( found ){
 				t.equal(found[0].name, 'Eve', 'Eve first');
@@ -270,7 +282,7 @@ test('statics', function( t ){
 
 		saved
 			.then(function(){
-				return Person.findAll({ name: 'Sam' });
+				return Person.findAll({ name: 'Sam' }).toArray();
 			})
 			.then(function( found ){
 				t.equal(found.length, 0, 'empty array');
@@ -300,7 +312,7 @@ test('statics', function( t ){
 
 		saved
 			.then(function(){
-				return Person.findAllByPk([ a.pk, c.pk, d.pk ]);
+				return Person.findAllByPk([ a.pk, c.pk, d.pk ]).toArray();
 			})
 			.then(function( found ){
 				t.equal(found.length, 2, 'found two models');
@@ -311,7 +323,7 @@ test('statics', function( t ){
 
 		saved
 			.then(function(){
-				return Person.findAllByPk([ a.pk, b.pk, c.pk ], { age: Person.sort.ascending });
+				return Person.findAllByPk([ a.pk, b.pk, c.pk ]).sort({ age: Person.sort.ascending }).toArray();
 			})
 			.then(function( found ){
 				t.ok(found[0].age < found[1].age, 'youngest first');
@@ -320,7 +332,7 @@ test('statics', function( t ){
 
 		saved
 			.then(function(){
-				return Person.findAllByPk([ a.pk, b.pk, c.pk ], { age: Person.sort.descending });
+				return Person.findAllByPk([ a.pk, b.pk, c.pk ]).sort({ age: Person.sort.descending }).toArray();
 			})
 			.then(function( found ){
 				t.ok(found[0].age > found[1].age, 'oldest first');
