@@ -109,6 +109,10 @@ test('statics', function( t ){
 
 		t.ok(Person.pkFromJSON('bad') === false, 'returns false on bad value');
 
+		t.ok(Person.pkFromJSON('uuuuuuuuuuuu') === false, 'returns false on bad value');
+		t.ok(Person.pkFromJSON('uuuuuuuuuuuuuuuuuuuuuuuu') === false, 'returns false on bad value');
+		t.ok(Person.pkFromJSON('aaaaaaaaaaaa-aaaaaaaaaaaa') === false, 'returns false on bad value');
+
 		var pk = Person.pkFromJSON('5433118c4c3fd89d6fe5d824');
 
 		t.ok(pk instanceof mongodb.ObjectID, 'return an ObjectID');

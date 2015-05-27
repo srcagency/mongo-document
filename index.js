@@ -7,6 +7,8 @@ var mongodb = require('mongodb');
 var renameKey = require('rename-key');
 var debug = require('debug')('mongo-document');
 
+var bsonRegex = /^[0-9a-fA-F]{24}$/;
+
 module.exports = {
 	decorate: function( ctor, options ){
 		debug('%s.decorate', ctor.name);
@@ -64,7 +66,7 @@ module.exports = {
 			},
 
 			pkFromJSON: function( json ){
-				if (!mongodb.ObjectID.isValid(json))
+				if (!json.match(bsonRegex))
 					return false;
 
 				return new mongodb.ObjectID.createFromHexString(json);
