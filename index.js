@@ -9,6 +9,8 @@ var debug = require('debug')('mongo-document');
 
 var bsonRegex = /^[0-9a-fA-F]{24}$/;
 
+var persisted = new WeakSet();
+
 module.exports = {
 	decorate: function( ctor, options ){
 		debug('%s.decorate', ctor.name);
@@ -60,7 +62,7 @@ module.exports = {
 
 				var model = this.fromJSON(json);
 
-				model._mongoDocument_persisted = true;
+				persisted.add(model);
 
 				return model;
 			},
@@ -212,16 +214,16 @@ var updateOptions = { upsert: true };
 function remove(){
 	debug('%s.remove', this.constructor.name);
 
-	this._mongoDocument_persisted = false;
+	persisted.delete(this);
 
 	return this.constructor.collection.call('deleteOneAsync', { _id: this.pk })
 		.return(this);
 };
 
 function save(){
-	var action = this._mongoDocument_persisted ? update : insert;
+	var action = persisted.has(this) ? update : insert;
 
-	this._mongoDocument_persisted = true;
+	persisted.add(this);
 
 	return action(this.constructor, this, toMongoJSON(this))
 		.return(this);
