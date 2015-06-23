@@ -49,3 +49,11 @@ Cursor.prototype.sort = function( sort ){
 
 	return this;
 }
+
+Cursor.prototype.count = function(){
+	debug('count');
+
+	return this
+		.cursor
+		.call('countAsync');
+}

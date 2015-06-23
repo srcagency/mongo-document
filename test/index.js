@@ -219,7 +219,7 @@ test('statics', function( t ){
 	});
 
 	t.test('findAll (cursor)', function( t ){
-		t.plan(4);
+		t.plan(5);
 
 		var cursor = getModel()
 			.findAll();
@@ -228,14 +228,11 @@ test('statics', function( t ){
 		t.ok(cursor.limit, 'limit');
 		t.ok(cursor.skip, 'skip');
 		t.ok(cursor.toArray, 'toArray');
+		t.ok(cursor.count, 'count');
 	});
 
 	t.test('findAll (and alias find)', function( t ){
-		t.plan(9);
-
 		var Person = getModel();
-
-		t.equal(Person.findAll, Person.find, 'find alias');
 
 		var a = new Person();
 		a.name = 'Adam';
@@ -251,42 +248,77 @@ test('statics', function( t ){
 		var saved = Promise
 			.map([ a, b, c ], Person.save);
 
-		saved
-			.then(function(){
-				return Person.findAll({ age: 33 }).toArray();
-			})
-			.then(function( found ){
-				t.equal(found.length, 2, 'found two models');
+		t.test(function( t ){
+			t.plan(9);
 
-				t.ok(found[0].equals(a) || found[1].equals(a), 'found first model');
-				t.ok(found[0].equals(b) || found[1].equals(b), 'found second model');
-			});
+			t.equal(Person.findAll, Person.find, 'find alias');
 
-		saved
-			.then(function(){
-				return Person.findAll({ age: 33 }).sort({ name: Person.sort.ascending }).toArray();
-			})
-			.then(function( found ){
-				t.equal(found[0].name, 'Adam', 'Adam first');
-				t.equal(found[1].name, 'Eve', 'Eve last');
-			});
+			saved
+				.then(function(){
+					return Person.findAll({ age: 33 }).toArray();
+				})
+				.then(function( found ){
+					t.equal(found.length, 2, 'found two models');
 
-		saved
-			.then(function(){
-				return Person.findAll({ age: 33 }).sort({ name: Person.sort.descending }).toArray();
-			})
-			.then(function( found ){
-				t.equal(found[0].name, 'Eve', 'Eve first');
-				t.equal(found[1].name, 'Adam', 'Adam last');
-			});
+					t.ok(found[0].equals(a) || found[1].equals(a), 'found first model');
+					t.ok(found[0].equals(b) || found[1].equals(b), 'found second model');
+				});
 
-		saved
-			.then(function(){
-				return Person.findAll({ name: 'Sam' }).toArray();
-			})
-			.then(function( found ){
-				t.equal(found.length, 0, 'empty array');
-			});
+			saved
+				.then(function(){
+					return Person.findAll({ age: 33 }).sort({ name: Person.sort.ascending }).toArray();
+				})
+				.then(function( found ){
+					t.equal(found[0].name, 'Adam', 'Adam first');
+					t.equal(found[1].name, 'Eve', 'Eve last');
+				});
+
+			saved
+				.then(function(){
+					return Person.findAll({ age: 33 }).sort({ name: Person.sort.descending }).toArray();
+				})
+				.then(function( found ){
+					t.equal(found[0].name, 'Eve', 'Eve first');
+					t.equal(found[1].name, 'Adam', 'Adam last');
+				});
+
+			saved
+				.then(function(){
+					return Person.findAll({ name: 'Sam' }).toArray();
+				})
+				.then(function( found ){
+					t.equal(found.length, 0, 'empty array');
+				});
+		});
+
+
+		t.test('count', function( t ){
+			t.plan(2);
+
+			var count = saved
+				.then(function(){
+					return Person.findAll().count();
+				})
+				.then(function( count ){
+					t.equals(count, 3, 'count');
+				});
+
+			var person = count
+				.then(function(){
+					return new Person().save();
+				});
+
+			Promise
+				.join(count, person)
+				.spread(function(){
+					return Person.findAll().count();
+				})
+				.then(function( count ){
+					t.equals(count, 4, 'count');
+				});
+		});
+
+		t.end();
 	});
 
 	t.test('findAllByPk (and alias findByPk)', function( t ){
