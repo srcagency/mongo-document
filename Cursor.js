@@ -41,7 +41,7 @@ Cursor.prototype.skip = function( skip ){
 }
 
 Cursor.prototype.sort = function( sort ){
-	debug('sort set to %s', sort);
+	debug('sort set to %o', sort);
 
 	this.cursor = this
 		.cursor
