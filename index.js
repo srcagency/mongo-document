@@ -93,8 +93,6 @@ module.exports = {
 			},
 
 			findOneByPk: function( pk ){
-				debug('%s.findOneByPk pk: %s', this.name, pk);
-
 				if (!pk)
 					return Promise.resolve(null);
 
