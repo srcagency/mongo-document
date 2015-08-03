@@ -426,6 +426,36 @@ test('statics', function( t ){
 			});
 	});
 
+	t.test('updateOne', function( t ){
+		t.plan(2);
+
+		var Person = getModel();
+
+		var a = new Person();
+		a.name = 'Eve';
+		a.age = 22;
+
+		var b = new Person();
+		b.name = 'Adam';
+		b.age = 22;
+
+		var saved = Promise.join(a.save(), b.save());
+
+		var update = saved
+			.then(function(){
+				return Person.updateOne({ age: 22 }, { $inc: { age: 1 } });
+			});
+
+		update
+			.then(function(){
+				return Person.findAll().toArray();
+			})
+			.then(function( people ){
+				t.equal(people.filter(function( p ){ return p.age === 22; }).length, 1, 'same age');
+				t.equal(people.filter(function( p ){ return p.age === 23; }).length, 1, 'update age');
+			});
+	});
+
 	t.test('update', function( t ){
 		t.plan(1);
 

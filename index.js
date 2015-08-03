@@ -88,6 +88,12 @@ module.exports = {
 				return this.collection.call('updateManyAsync', prepareQuery(query), object, options);
 			},
 
+			updateOne: function( query, object, options ){
+				debug('%s.updateOne %o with options %o', this.name, query, options);
+
+				return this.collection.call('updateOneAsync', prepareQuery(query), object, options);
+			},
+
 			count: function( query, options ){
 				return this.collection.call('countAsync', prepareQuery(query), options);
 			},
