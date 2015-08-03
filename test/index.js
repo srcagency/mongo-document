@@ -426,6 +426,35 @@ test('statics', function( t ){
 			});
 	});
 
+	t.test('update', function( t ){
+		t.plan(1);
+
+		var Person = getModel();
+
+		var a = new Person();
+		a.name = 'Eve';
+		a.age = 22;
+
+		var b = new Person();
+		b.name = 'Adam';
+		b.age = 22;
+
+		var saved = Promise.join(a.save(), b.save());
+
+		var update = saved
+			.then(function(){
+				return Person.update({ age: 22 }, { $inc: { age: 1 } });
+			});
+
+		update
+			.then(function(){
+				return Person.findAll().toArray();
+			})
+			.then(function( people ){
+				t.ok(people.every(function( p ){ return p.age === 23; }), 'age is updated');
+			});
+	});
+
 	t.test('fupsert', function( t ){
 		t.plan(6);
 
