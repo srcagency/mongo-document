@@ -219,7 +219,7 @@ test('statics', function( t ){
 	});
 
 	t.test('findAll (cursor)', function( t ){
-		t.plan(5);
+		t.plan(9);
 
 		var cursor = getModel()
 			.findAll();
@@ -229,6 +229,12 @@ test('statics', function( t ){
 		t.ok(cursor.skip, 'skip');
 		t.ok(cursor.toArray, 'toArray');
 		t.ok(cursor.count, 'count');
+
+		var list = cursor.toArray();
+		t.ok(list.map, 'toArray().map');
+		t.ok(list.reduce, 'toArray().reduce');
+		t.ok(list.filter, 'toArray().filter');
+		t.ok(list.each, 'toArray().each');
 	});
 
 	t.test('findAll (and alias find)', function( t ){
