@@ -15,7 +15,7 @@ Cursor.prototype.ascending = 1;
 Cursor.prototype.toArray = function(){
 	return this
 		.cursor
-		.call('toArrayAsync')
+		.call('toArray')
 		.bind(this.ctor)
 		.map(this.ctor.fromMongoJSON);
 }
@@ -55,5 +55,5 @@ Cursor.prototype.count = function(){
 
 	return this
 		.cursor
-		.call('countAsync');
+		.call('count');
 }

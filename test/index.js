@@ -3,12 +3,12 @@
 var test = require('tape');
 var assign = require('object-assign');
 var Promise = require('bluebird');
-var mongodb = Promise.promisifyAll(require('mongodb'));
+var mongodb = require('mongodb');
 var mongoDocument = require('../');
 
 Promise.longStackTraces();
 
-var db = mongodb.connectAsync('mongodb://localhost/mongo-document-tests');
+var db = Promise.resolve(mongodb.connect('mongodb://localhost/mongo-document-tests'));
 
 var counter = 0;
 

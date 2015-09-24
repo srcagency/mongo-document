@@ -33,10 +33,8 @@ module.exports = {
 
 				collection = Promise
 					.resolve(value)
-					.then(function( collection ){
+					.tap(function( collection ){
 						debug('%s collection %s ready', ctor.name, collection.collectionName);
-
-						return Promise.promisifyAll(collection);
 					});
 
 				if (options.indexes)
@@ -77,7 +75,7 @@ module.exports = {
 			remove: function( query, options ){
 				debug('%s.remove %o with options %o', this.name, query, options);
 
-				return this.collection.call('deleteManyAsync', prepareQuery(query), options)
+				return this.collection.call('deleteMany', prepareQuery(query), options)
 					.get('result')
 					.get('n');
 			},
@@ -85,17 +83,17 @@ module.exports = {
 			update: function( query, object, options ){
 				debug('%s.update %o with options %o', this.name, query, options);
 
-				return this.collection.call('updateManyAsync', prepareQuery(query), object, options);
+				return this.collection.call('updateMany', prepareQuery(query), object, options);
 			},
 
 			updateOne: function( query, object, options ){
 				debug('%s.updateOne %o with options %o', this.name, query, options);
 
-				return this.collection.call('updateOneAsync', prepareQuery(query), object, options);
+				return this.collection.call('updateOne', prepareQuery(query), object, options);
 			},
 
 			count: function( query, options ){
-				return this.collection.call('countAsync', prepareQuery(query), options);
+				return this.collection.call('count', prepareQuery(query), options);
 			},
 
 			findOneByPk: function( pk ){
@@ -111,7 +109,7 @@ module.exports = {
 			findOne: function( query ){
 				debug('%s.findOne %o', this.name, query);
 
-				return this.collection.call('findOneAsync', prepareQuery(query))
+				return this.collection.call('findOne', prepareQuery(query))
 					.bind(this)
 					.then(this.fromMongoJSON);
 			},
@@ -134,7 +132,7 @@ module.exports = {
 				}, options || {});
 
 				return this.collection.call(
-					'findOneAndUpdateAsync',
+					'findOneAndUpdate',
 					prepareQuery(query),
 					object,
 					options
@@ -183,7 +181,7 @@ function ensureIndexes( ctor, indexes ){
 			var keys = index.keys;
 			var options = withoutKeys(index, [ 'keys' ]);
 
-			return ctor.collection.call('ensureIndexAsync', keys, options)
+			return ctor.collection.call('ensureIndex', keys, options)
 				.tap(function( r ){
 					debug('%s added index %o with name %s', ctor.name, keys, r);
 				})
@@ -201,7 +199,7 @@ function findAllByPk( pks ){
 function findAll( query ){
 	debug('%s.findAll %o', this.name, query);
 
-	return new Cursor(this, this.collection.call('findAsync', prepareQuery(query)));
+	return new Cursor(this, this.collection.call('find', prepareQuery(query)));
 }
 
 // methods (called with model instance as context)
@@ -213,7 +211,7 @@ function remove(){
 
 	this._mongoDocument_persisted = false;
 
-	return this.constructor.collection.call('deleteOneAsync', { _id: this.pk })
+	return this.constructor.collection.call('deleteOne', { _id: this.pk })
 		.return(this);
 };
 
@@ -229,14 +227,14 @@ function save(){
 function insert( ctor, model, json ){
 	debug('%s.save inserting', ctor.name);
 
-	return ctor.collection.call('insertOneAsync', json);
+	return ctor.collection.call('insertOne', json);
 }
 
 function update( ctor, model, json ){
 	debug('%s.save updating', ctor.name);
 	delete json._id;
 
-	return ctor.collection.call('updateOneAsync', { _id: model.pk }, { $set: json }, updateOptions);
+	return ctor.collection.call('updateOne', { _id: model.pk }, { $set: json }, updateOptions);
 }
 
 // helpers
