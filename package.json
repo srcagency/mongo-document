@@ -20,14 +20,14 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"object-assign": "^2.0.0",
-		"bluebird": "^2.9.9",
+		"object-assign": "^4.0.1",
+		"bluebird": "^2.10.1",
 		"mongodb": "^2.0.43",
 		"rename-key": "^1.1.1",
 		"debug": "^2.1.1",
 		"without-keys": "^0.0.3"
 	},
 	"devDependencies": {
-		"tape": "^3.5.0"
+		"tape": "^4.2.0"
 	}
 }
